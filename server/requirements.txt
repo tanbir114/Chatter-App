@@ -1,0 +1,4 @@
+npm i express nodemon bcrypt jsonwebtoken pg mongoose dotenv winston morgan
+
+npm i -D typescript @types/node @types/express @types/bcrypt @types/jsonwebtoken ts-node-dev
+npm install -D @types/mongoose @types/dotenv @types/winston

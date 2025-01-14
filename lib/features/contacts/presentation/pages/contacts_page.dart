@@ -1,3 +1,4 @@
+import 'package:chatter/features/chat/presentation/pages/chat_page.dart';
 import 'package:chatter/features/contacts/presentation/bloc/contacts_bloc.dart';
 import 'package:chatter/features/contacts/presentation/bloc/contacts_event.dart';
 import 'package:chatter/features/contacts/presentation/bloc/contacts_state.dart';
@@ -15,6 +16,7 @@ class _ContactsPageState extends State<ContactsPage> {
   @override
   void initState() {
     super.initState();
+    // final currentState = BlocProvider.of<ContactsBloc>(context).state;
     BlocProvider.of<ContactsBloc>(context).add(FetchContacts());
   }
 
@@ -22,47 +24,77 @@ class _ContactsPageState extends State<ContactsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Contacts',
+        title: Center(
+          child: Text(
+            'Contacts',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: BlocBuilder<ContactsBloc, ContactsState>(
-        builder: (context, state) {
-          if (state is ContactsLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
+      body: BlocListener<ContactsBloc, ContactsState>(
+        listener: (context, state) async {
+          final contactsBloc = BlocProvider.of<ContactsBloc>(context);
+          if (state is ConversationReady) {
+            var res = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatPage(
+                    conversationId: state.conversationId,
+                    mate: state.contactName),
+              ),
             );
-          } else if (state is ContactsLoaded) {
-            return state.contacts.isEmpty
-                ? Center(
-                    child: Text(
-                    'No contacts found',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ))
-                : ListView.builder(
-                    itemCount: state.contacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = state.contacts[index];
-                      return ListTile(
-                        title: Text(contact.username),
-                        subtitle: Text(contact.email),
-                        onTap: () {
-                          Navigator.pop(context, contact);
-                        },
-                      );
-                    },
-                  );
-          } else if (state is ContactsError) {
-            return Center(
-              child: Text(state.message),
-            );
+            if (res == null) {
+              contactsBloc.add(FetchContacts());
+            }
           }
-          return Center(
-            child: Text('No contacts found'),
-          );
         },
+        child: BlocBuilder<ContactsBloc, ContactsState>(
+          builder: (context, state) {
+            if (state is ContactsLoading) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is ContactsLoaded) {
+              return state.contacts.isEmpty
+                  ? Center(
+                      child: Text(
+                      'No contacts found',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ))
+                  : ListView.builder(
+                      itemCount: state.contacts.length,
+                      itemBuilder: (context, index) {
+                        final contact = state.contacts[index];
+                        return ListTile(
+                          title: Text(
+                            contact.username,
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                          subtitle: Text(
+                            contact.email,
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                          onTap: () {
+                            BlocProvider.of<ContactsBloc>(context).add(
+                                CheckOrCreateConversationEvent(
+                                    contactName: contact.username,
+                                    contactId: contact.id));
+                          },
+                        );
+                      },
+                    );
+            } else if (state is ContactsError) {
+              return Center(
+                child: Text(state.message),
+              );
+            }
+            return Center(
+              child: Text('No contacts found'),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddContactDialog(context),

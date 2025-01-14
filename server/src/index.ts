@@ -36,9 +36,10 @@ app.use(
 app.use('/auth', authRoutes);
 app.use('/conversations', conversationsRoutes);
 app.use('/messages', messagesRoutes);
-app.use('/contact', contactsRoutes);
+app.use('/contacts', contactsRoutes);
 
 io.on('connection', (socket) => {
+  console.log("Connection established");
   logger.info(`A user connected: ${socket.id}`);
 
   socket.on('joinConversation', (conversationId)=>{
@@ -81,7 +82,7 @@ if (!MONGODB_API) {
 mongoose
   .connect(MONGODB_API)
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       logger.info(`Server listening on http://localhost:${PORT}`);
     });
     logger.info('Connected to MongoDB');

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Conversation } from '../models/conversationModel';
+import winston from 'winston';
 
 export const fetchAllConversationsByUserId = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -69,3 +70,41 @@ export const fetchAllConversationsByUserId = async (req: Request, res: Response)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+export const checkOrCreateConversation = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { contactId } = req.body;
+
+    if (!userId || !contactId) {
+      res.status(400).json({ error: 'Missing user ID or contact ID' });
+      return;
+    }
+
+    // Check if the conversation already exists
+    const existingConversation = await Conversation.findOne({
+      $or: [
+        { participant_one: userId, participant_two: contactId },
+        { participant_one: contactId, participant_two: userId },
+      ],
+    }).exec();
+
+    if (existingConversation) {
+      res.json({ conversationId: existingConversation._id });
+      return;
+    }
+
+    // Create a new conversation
+    const newConversation = new Conversation({
+      participant_one: userId,
+      participant_two: contactId,
+    });
+
+    await newConversation.save();
+    res.json({ conversationId: newConversation._id });
+  } catch (error) {
+    winston.error('Error checking or creating conversation:', error);
+    res.status(500).json({ error: 'Failed to check or create conversation' });
+  }
+};
+

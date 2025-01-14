@@ -29,7 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   fetchUserId() async {
-    userId = await _storage.read(key: 'user_id') ?? '';
+    userId = await _storage.read(key: 'userId') ?? '';
     setState(() {
       userId = userId;
     });
@@ -94,8 +94,10 @@ class _ChatPageState extends State<ChatPage> {
                   return ListView.builder(
                     itemCount: state.messages.length,
                     padding: EdgeInsets.all(20),
+                    reverse: true,
                     itemBuilder: (context, index) {
-                      final message = state.messages[index];
+                      final message =
+                          state.messages[state.messages.length - index - 1];
                       final isSentMessage = message.senderId == userId;
                       if (isSentMessage) {
                         return _buildSentMessage(context, message.content);

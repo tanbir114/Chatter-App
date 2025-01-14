@@ -13,17 +13,21 @@ class SocketService {
   }
 
   Future<void> initSocket() async {
-    String token = await _storage.read(key: 'token') ?? '';
+    String token = await _storage.read(key: 'Token') ?? '';
+    print(token);
     _socket = IO.io(
-      'http://localhost:5000',
+      'http://192.168.0.245:5000',
       IO.OptionBuilder()
-          .setTransports(['websocket'])
+          .setTransports(
+              ['websocket']) // Ensure the transport is set to 'websocket'
           .disableAutoConnect()
-          .setExtraHeaders({'Authorization': 'Bearer $token'})
+          .setExtraHeaders({'Authorization': 'Bearer $token'}) // Pass the token
           .build(),
     );
 
+    print("Socket connecting.......................");
     _socket.connect();
+    print("Socket maybe connectedddddddd");
 
     _socket.onConnect((_) {
       print('Socket connected: ${_socket.id}');

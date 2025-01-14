@@ -22,10 +22,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       LoadMessagesEvent event, Emitter<ChatState> emit) async {
     emit(ChatLoadingState());
     try {
-      final messages = await fetchMessagesUseCase(event.conversationId);
+      final messages = await fetchMessagesUseCase.call(event.conversationId);
       _messages.clear();
       _messages.addAll(messages);
       emit(ChatLoadedState(messages: List.from(_messages)));
+
+      _socketService.socket.off('newMessage');
 
       _socketService.socket.emit('joinConversation', event.conversationId);
       _socketService.socket.on('newMessage', (data) {
@@ -56,9 +58,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     print("step2 - receive event called");
     print(event.message);
     final message = MessageEntity(
-      id: event.message['id'],
-      conversationId: event.message['conversationId'],
-      senderId: event.message['senderId'],
+      id: event.message['_id'],
+      conversationId: event.message['conversation_id'],
+      senderId: event.message['sender_id'],
       content: event.message['content'],
       createdAt: event.message['createdAt'],
     );

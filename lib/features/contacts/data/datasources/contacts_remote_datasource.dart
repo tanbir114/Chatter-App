@@ -13,6 +13,7 @@ class ContactsRemoteDatasource {
     final response = await http.get(Uri.parse('$baseUrl/contacts'),
         headers: {'Authorization': 'Bearer $token'});
     if (response.statusCode == 200) {
+      print("Responseeeeeeeeee Bodyyyyyyyyy: \n ${jsonDecode(response.body)}");
       List data = jsonDecode(response.body);
       return data.map((json) => ContactsModel.fromJson(json)).toList();
     } else {
@@ -24,9 +25,12 @@ class ContactsRemoteDatasource {
     final token = await _storage.read(key: "Token") ?? '';
     final response = await http.post(Uri.parse('$baseUrl/contacts'),
         body: jsonEncode({'contactEmail': email}),
-        headers: {'Authorization': 'Bearer $token'});
-    
-    if(response.statusCode != 201) {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        });
+
+    if (response.statusCode != 201) {
       throw Exception('Failed to add contact');
     }
   }

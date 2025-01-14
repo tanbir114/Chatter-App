@@ -10,17 +10,16 @@ class MessagesRemoteDataSource {
   final _storage = FlutterSecureStorage();
 
   Future<List<MessageEntity>> fetchMessages(String conversationId) async {
-    String token = await _storage.read(key: 'token') ?? '';
+    String token = await _storage.read(key: 'Token') ?? '';
     final response = await http.get(
-      Uri.parse('$baseUrl/messages/$conversationId'),
-      headers: {'Authorization': 'Bearer $token'}
-    );
+        Uri.parse('$baseUrl/messages/$conversationId'),
+        headers: {'Authorization': 'Bearer $token'});
 
-    if(response.statusCode == 200){
+    if (response.statusCode == 200) {
       List data = jsonDecode(response.body);
+      print(data);
       return data.map((json) => MessageModel.fromJson(json)).toList();
-    }
-    else{
+    } else {
       throw Exception('Failed to fetch messages');
     }
   }

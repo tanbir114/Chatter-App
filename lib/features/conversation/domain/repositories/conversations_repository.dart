@@ -2,4 +2,6 @@ import 'package:chatter/features/conversation/domain/entities/conversation_entit
 
 abstract class ConversationsRepository {
   Future<List<ConversationEntity>> fetchConversations();
+
+  Future<String> checkOrCreateConversation(String contactId);
 }

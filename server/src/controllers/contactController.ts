@@ -16,7 +16,6 @@ export const fetchContacts = async (req: Request, res: Response) =>{
       return;
     }
 
-    // Fetch contacts for the user with populated contact_id
     const contacts = await Contact.find({ user_id: userId })
       .populate<{ contact_id: { _id: string; username: string; email: string } }>('contact_id', 'username email')
       .sort({ 'contact_id.username': 1 });
@@ -26,6 +25,8 @@ export const fetchContacts = async (req: Request, res: Response) =>{
       username: contact.contact_id.username,
       email: contact.contact_id.email,
     }));
+
+    console.log("Fetched contacts: ", formattedContacts);
 
     res.json(formattedContacts);
     return;
@@ -46,29 +47,32 @@ export const addContact = async (req: Request, res: Response) => {
     const { contactEmail } = req.body;
   
     if (!userId || !contactEmail) {
-        res.status(400).json({ error: 'User ID and Contact ID are required.' });
-        return;
+      res.status(400).json({ error: 'User ID and Contact Email are required.' });
+      return;
     }
   
     try {
-        const contactExists = await User.find({ email: contactEmail });
+      // Find the contact user by email
+      const contactUser = await User.findOne({ email: contactEmail });
   
-      if (contactExists.length === 0) {
+      if (!contactUser) {
         res.status(404).json({ error: 'Contact not found' });
         return;
       }
-
-      const contractId = contactExists[0]._id;
   
+      const contactId = contactUser._id; // Get the ObjectId of the contact user
+  
+      // Upsert the contact (insert if not exists)
       const contact = await Contact.findOneAndUpdate(
-        { user_id: userId, contact_id: contactEmail },
-        { user_id: userId, contact_id: contactEmail },
+        { user_id: userId, contact_id: contactId },
+        { user_id: userId, contact_id: contactId },
         { upsert: true, new: true }
       );
   
-        res.status(201).json({ message: 'Contact added successfully', contact });
+      res.status(201).json({ message: 'Contact added successfully', contact });
     } catch (error) {
       winston.error('Error adding contact:', error);
-       res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+  

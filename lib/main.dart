@@ -10,6 +10,7 @@ import 'package:chatter/features/contacts/domain/usecases/fetch_contacts_usecase
 import 'package:chatter/features/contacts/presentation/bloc/contacts_bloc.dart';
 import 'package:chatter/features/conversation/data/datasources/conversations_remote_data_source.dart';
 import 'package:chatter/features/conversation/data/repositories/conversations_repository_impl.dart';
+import 'package:chatter/features/conversation/domain/usecases/check_or_create_conversation_usecase.dart';
 import 'package:chatter/features/conversation/domain/usecases/fetch_conversations_usecase.dart';
 import 'package:chatter/features/conversation/presentation/bloc/conversaitons_bloc.dart';
 import 'package:chatter/core/theme.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final socketService = SocketService();
   await socketService.initSocket();
+
   final authRepository =
       AuthRepositoryImpl(authRemoteDataSource: AuthRemoteDatasource());
   final conversationRepository = ConversationsRepositoryImpl(
@@ -79,7 +81,10 @@ class MyApp extends StatelessWidget {
                 fetchContactsUseCase: FetchContactsUseCase(
                     contactsRepository: contactsRepository),
                 addContactUseCase:
-                    AddContactUseCase(contactsRepository: contactsRepository)))
+                    AddContactUseCase(contactsRepository: contactsRepository),
+                checkOrCreateConversationUseCase:
+                    CheckOrCreateConversationUseCase(
+                        conversationsRepository: conversationsRepository)))
       ],
       child: MaterialApp(
           title: 'Flutter Demo',

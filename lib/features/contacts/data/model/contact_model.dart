@@ -5,7 +5,7 @@ class ContactsModel extends ContactEntity {
   
   factory ContactsModel.fromJson(Map<String, dynamic> json){
     return ContactsModel(
-      id: json["_id"],
+      id: json["contact_id"],
       username: json["username"],
       email: json["email"],
     );

@@ -11,10 +11,10 @@ class MessageModel extends MessageEntity {
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
       id: json['_id'],
-      conversationId: json['_conversation_id'],
-      senderId: json['_sender_id'],
-      content: json['_content'],
-      createdAt: json['_created_at'],
+      conversationId: json['conversation_id'],
+      senderId: json['sender_id'],
+      content: json['content'],
+      createdAt: json['createdAt'],
     );
   }
 }

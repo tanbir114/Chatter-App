@@ -21,6 +21,7 @@ class AuthRemoteDatasource {
         body: jsonEncode(
             {'username': username, 'email': email, 'password': password}),
         headers: {'Content-Type': 'application/json'});
+    print(jsonDecode(response.body));
     return UserModel.fromJson(jsonDecode(response.body)['newUser']);
   }
 }

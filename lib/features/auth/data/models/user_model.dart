@@ -8,12 +8,11 @@ class UserModel extends UserEntity {
       required super.token});
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    print("TTTTTTTTTTTTToken: " + json['token']);
     return UserModel(
       id: json['_id'],
       username: json['username'],
       email: json['email'],
-      token: json['token'],
+      token: json['token'] ?? '',
     );
   }
 }
